@@ -1,0 +1,49 @@
+.back-link { display: inline-block; font-size: 14px; color: var(--muted); margin-top: 32px; }
+.back-link:hover { color: var(--ink); }
+.project-overview { display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.25fr); gap: 64px; align-items: center; min-height: 440px; padding-block: 40px 56px; }
+.project-intro { min-width: 0; }
+.project-intro h1 { font-size: clamp(38px,4.2vw,54px); line-height: 1.12; letter-spacing: -.055em; overflow-wrap: break-word; }
+.project-role { font-size: 14px; color: var(--muted); margin-top: 20px; }
+.project-description { font-size: 16px; line-height: 1.95; max-width: 450px; margin-top: 24px; }
+.project-links { margin-top: 28px; }
+.project-figure { min-width: 0; }
+.original-image { display: flex; width: 100%; min-height: 330px; align-items: center; justify-content: center; background: #fff; cursor: zoom-in; padding: 24px; }
+.original-image img { width: 100%; height: auto; max-height: 480px; object-fit: contain; }
+.detail-io-ring .original-image { background: #000; padding: 10px; }
+.project-overview.detail-virtuoso-bridge { grid-template-columns: minmax(0,.75fr) minmax(0,1.35fr); }
+.detail-virtuoso-bridge .original-image { padding: 20px 10px; }
+.paper { border-top: 1px solid var(--line); padding-block: 28px; }
+.paper h2 { font-size: 18px; line-height: 1.65; max-width: 800px; }
+.paper h2 a:hover { text-decoration: underline; text-underline-offset: 5px; }
+.paper p { font-size: 14px; color: var(--muted); margin-top: 12px; }
+.image-source { border-top: 1px solid var(--line); padding-block: 22px; font-size: 14px; color: var(--muted); }
+.image-source summary { cursor: pointer; width: fit-content; list-style: none; }
+.image-source summary::-webkit-details-marker { display: none; }
+.image-source summary:after { content: '+'; display: inline-block; margin-left: 18px; }
+.image-source[open] summary:after { content: '−'; }
+.image-source>div { padding-top: 18px; }
+.image-source nav { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 15px; }
+.image-source a { text-decoration: underline; text-underline-offset: 4px; }
+.project-navigation { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-top: 1px solid var(--ink); padding-block: 28px 44px; margin-top: 12px; }
+.project-navigation a { font-size: 16px; overflow-wrap: anywhere; }
+.project-navigation a:last-child { display: flex; gap: 28px; }
+.project-navigation a:hover { text-decoration: underline; text-underline-offset: 5px; }
+@media(max-width:1000px) { .project-overview { gap: 36px; } .project-intro h1 { font-size: 40px; } .project-description { font-size: 15px; } .original-image { min-height: 270px; padding: 16px; } }
+@media(max-width:700px) {
+  .back-link { margin-top: 28px; }
+  .project-overview { display: flex; flex-direction: column; align-items: stretch; gap: 32px; min-height: 0; padding-block: 32px; }
+  .project-intro h1 { font-size: 42px; }
+  .detail-virtuoso-bridge .project-intro h1 { font-size: 39px; }
+  .project-role { margin-top: 16px; }
+  .project-description { margin-top: 20px; }
+  .project-links { margin-top: 24px; }
+  .original-image { min-height: 0; padding: 12px; }
+  .detail-io-ring .original-image { padding: 5px; }
+  .detail-virtuoso-bridge .original-image { padding: 16px 6px; }
+  .paper h2 { font-size: 17px; }
+  .paper p { font-size: 13px; }
+  .project-navigation { align-items: baseline; gap: 20px; padding-bottom: 32px; }
+  .project-navigation a { font-size: 14px; }
+  .project-navigation a:first-child { flex: none; }
+  .project-navigation a:last-child { gap: 14px; max-width: 65%; text-align: right; }
+}

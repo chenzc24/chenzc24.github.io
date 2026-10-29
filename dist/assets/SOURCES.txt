@@ -1,0 +1,40 @@
+Original project images used by the résumé and project pages
+
+All images below are distributed unchanged. They are displayed with contain sizing;
+no circuit, data, label, or diagram has been redrawn for this site.
+
+io-ring-layout.png
+Original Cadence layout screenshot from the AMS-IO-Bench 28nm mixed-signal case.
+Source: https://github.com/Arcadia-1/AMS-IO-Agent/blob/046a2e3edccd76322ab3e47c4dd9a5a1eded1e8a/AMS-IO-Bench/28nm_wirebonding/golden_output/IO_28nm_3x3_single_ring_mixed/layout_screenshot.png
+This is an existing benchmark example, not a new measurement or fabricated chip photo.
+No repository license was identified for this image; source attribution is retained.
+
+folded-cascode-op-amp-pmos-cascode-loads.svg
+Original Analog Canvas SVG export supplied and selected by the site owner.
+Copied byte-for-byte from the supplied file on 2026-10-29.
+Source: ./folded-cascode-op-amp-pmos-cascode-loads.svg
+The complete original image is shown, including its original labels.
+This replaces analog-folded-cascode.svg. The earlier documentation figure's
+repository attribution is no longer displayed for this image.
+
+adc-spectrum.png
+Original ADCToolbox quickstart spectrum example.
+Source: https://github.com/Arcadia-1/ADCToolbox/blob/8d62fb1863e38ffe5c6cc3ac48fa9c24d9df1ae9/docs/images/quickstart_spectrum.png
+License: MIT. Copyright (c) 2025 Zhishuai Zhang, Lu Jie.
+Full text: adctoolbox-LICENSE.txt.
+This is a project example plot, not a claimed personal measurement.
+
+virtuoso-architecture.png
+Original architecture diagram from the virtuoso-bridge-lite documentation.
+Source: https://github.com/Arcadia-1/virtuoso-bridge-lite/blob/17883ca35d14df108f46ebeb5c2ea9d70ee08acf/docs/assets/arch.png
+License: MIT. Copyright (c) 2025-2026 Zhishuai Zhang, Xintian Li, Nan Sun, Lu Jie.
+Full text: virtuoso-bridge-LICENSE.txt.
+
+The former locally drawn I/O ring SVG and styled Python-code illustration are
+no longer rendered. Legacy unused assets remain in the local development
+directory and are not included in the GitHub Pages export.
+
+Personal photographs
+zengchun-home.jpg and zengchun-profile.jpg were supplied by the site owner on
+2026-10-29 for the homepage and résumé respectively. Both files are copied
+byte-for-byte; the homepage uses CSS framing without altering the original file.

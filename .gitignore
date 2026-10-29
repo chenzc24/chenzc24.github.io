@@ -1,0 +1,8 @@
+qa/
+node_modules/
+.openai/
+.sites-runtime/
+.env
+.env.*
+*.log
+*.tar.gz
