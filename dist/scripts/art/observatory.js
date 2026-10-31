@@ -5,7 +5,7 @@
   let lang=Site.language,userPaused=false;
   try{userPaused=localStorage.getItem('zc-motion')==='paused';}catch{}
   let paused=userPaused||reduced.matches,visible=!document.hidden,inView=true;
-  const lines=84,points=169,total=lines*points*3;
+  const lines=84,points=169;
   const built=window.FieldShapes.build(lines,points),order=[4,1,3,6,2,9,0,7,5,8];
   // A fresh order on every visit (Fisher–Yates), so the page does not always open on the same form.
   for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
@@ -36,29 +36,30 @@
   for(const form of scientific){built.shapes[form.index]=form.data;built.styles[form.index]={...form.style,warp:0,flow:form.index===2?1:0,cuts:form.breaks?1:0};if(form.update)updates.set(form.index,form.update);}
   const formSizes={0:.88,1:.92,3:.84};
   built.styles=built.styles.map((s,i)=>({warp:.022,flow:0,trace:0,seam:0,cuts:0,size:formSizes[i]||1,roll:-.29,yaw:-.25,turn:1,...s}));
-  const styleKeys=['dots','tilt','lineAlpha','warp','flow','trace','seam','cuts','size','roll','yaw','turn'];
   const shapes=order.map(i=>built.shapes[i]),styles=order.map(i=>built.styles[i]);
   const sequence=document.querySelector('.sequence');
   sequence.innerHTML=shapes.map((_,i)=>`<button data-form="${i}" aria-pressed="${i===0}"><span aria-hidden="true"></span></button>`).join('');
   const buttons=[...sequence.querySelectorAll('button')];
-  const current=new Float32Array(shapes[0]),origin=new Float32Array(current),screen=new Float32Array(lines*points*2);
-  const echoes=[3,6].map(offset=>({offset,current:new Float32Array(shapes[offset]),origin:new Float32Array(shapes[offset]),style:{...styles[offset]},originStyle:{...styles[offset]}}));
+  const screen=new Float32Array(lines*points*2);
+  // The two large, quiet fragments at the canvas edges show the forms this many places further on.
+  const echoes=[3,6];
   const pointer={x:0,y:0,tx:0,ty:0},waves=[];
-  const TAU=Math.PI*2,cycleDuration=10.8,morphDuration=3.2;
-  let active=0,previousActive=0,transition=1,cycleAge=0,clock=0,last=0,raf=0,w=0,h=0,baseScale=0,captioned=0;
-  let style={...styles[0]},originStyle={...style},mainPose=null;
+  const TAU=Math.PI*2,cycleDuration=10.8,fadeDuration=2.4;
+  let active=0,outgoing=0,outgoingFrom=1,arriveFrom=0,arriveAt=.38,transition=1,cycleAge=0,clock=0,last=0,raf=0,w=0,h=0,baseScale=0,captioned=0,mainPose=null;
   const lerp=(a,b,t)=>a+(b-a)*t;
   const smooth=t=>t*t*(3-2*t);
+  // A transition fades the outgoing form out, then the incoming one in, each a little smaller while faint.
+  // Forms are not interpolated line by line, which tangled them half-way. A form clicked back while it is
+  // still the most visible one rises again at once (arriveAt 0) instead of waiting for the fade-out.
+  const fadeOut=t=>1-smooth(Math.min(1,t/.45)),fadeIn=t=>smooth(Math.max(0,(t-arriveAt)/(1-arriveAt)));
+  // How visible the incoming and the outgoing forms are, 0–1.
+  const levels=()=>transition<1?[lerp(arriveFrom,1,fadeIn(transition)),outgoingFrom*fadeOut(transition)]:[1,0];
 
   function labels(){
     lang=Site.language;
     sequence.setAttribute('aria-label',lang==='zh'?'形态':'Forms');
     buttons.forEach((button,i)=>{button.setAttribute('aria-label',(lang==='zh'?`形态 ${i+1}：`:`Form ${i+1}: `)+Site.t(...forms[order[i]].name));button.setAttribute('aria-pressed',String(i===active));});
-    const form=forms[order[active]],note=Array.isArray(form.note)?Site.escape(Site.t(...form.note)):form.note,changed=captioned!==active;
-    // The caption fades in only when the form changes, not on a language switch or pause.
-    captioned=active;caption.classList.remove('is-changing');
-    caption.innerHTML=`<span class="art-count"><b>${String(active+1).padStart(2,'0')}</b> / ${shapes.length}</span> <span class="art-name">${Site.t(...form.name)}</span> <span class="art-note">${note}</span>`;
-    if(changed){void caption.offsetWidth;caption.classList.add('is-changing');}
+    const [arriving,leaving]=levels();writeCaption(arriving>=leaving?active:outgoing);
     document.querySelector('#next-form').setAttribute('aria-label',lang==='zh'?'下一形态':'Next form');
     canvas.setAttribute('aria-label',lang==='zh'?'互动图形':'Interactive form');
     const motion=document.querySelector('#motion');
@@ -69,10 +70,22 @@
     buttons[active].style.setProperty('--progress',Math.max(.08,cycleAge/cycleDuration));
   }
 
+  // The caption names the form on stage, so during a transition it changes when the incoming form takes over.
+  function writeCaption(shown){
+    const form=forms[order[shown]],note=Array.isArray(form.note)?Site.escape(Site.t(...form.note)):form.note,changed=captioned!==shown;
+    // It fades in only when the form changes, not on a language switch or pause.
+    captioned=shown;caption.classList.remove('is-changing');
+    caption.innerHTML=`<span class="art-count"><b>${String(shown+1).padStart(2,'0')}</b> / ${shapes.length}</span> <span class="art-name">${Site.t(...form.name)}</span> <span class="art-note">${note}</span>`;
+    if(changed){void caption.offsetWidth;caption.classList.add('is-changing');}
+  }
+
   function choose(n){
     n=(n+shapes.length)%shapes.length;cycleAge=0;
     if(n===active){labels();draw();return;}
-    origin.set(current);originStyle={...style};echoes.forEach(e=>{e.origin.set(e.current);e.originStyle={...e.style};});previousActive=active;active=n;transition=paused?1:0;
+    // The form most visible now hands over from where it stands, so quick clicks never make a form jump.
+    const [arriving,leaving]=levels(),[shown,shownLevel,other,otherLevel]=arriving>=leaving?[active,arriving,outgoing,leaving]:[outgoing,leaving,active,arriving];
+    if(n===shown){outgoing=other;outgoingFrom=otherLevel;arriveFrom=shownLevel;arriveAt=0;}else{outgoing=shown;outgoingFrom=shownLevel;arriveFrom=n===other?otherLevel:0;arriveAt=.38;}
+    active=n;transition=paused?1:0;
     labels();draw();start();
   }
   function resize(){
@@ -159,22 +172,27 @@
 
   function draw(){
     if(!w)return;ctx.fillStyle=paper;ctx.fillRect(0,0,w+1,h+1);
-    for(const index of new Set([active,...echoes.map(e=>(active+e.offset)%shapes.length)])){const update=updates.get(order[index]);if(update)update(shapes[index],clock);}
-    const t=smooth(transition);
-    if(transition<1){for(let k=0;k<total;k++)current[k]=lerp(origin[k],shapes[active][k],t);}else current.set(shapes[active]);
-    for(const key of styleKeys)style[key]=lerp(originStyle[key],styles[active][key],t);
-    echoes.forEach((echo,i)=>{const target=(active+echo.offset)%shapes.length,et=smooth(Math.max(0,Math.min(1,(transition-.12-i*.13)/(.88-i*.13))));if(et<1){for(let k=0;k<total;k++)echo.current[k]=lerp(echo.origin[k],shapes[target][k],et);}else echo.current.set(shapes[target]);for(const key of styleKeys)echo.style[key]=lerp(echo.originStyle[key],styles[target][key],et);echo.fade=1-.58*Math.sin(Math.PI*et)**2;});
+    const [arriving,leaving]=levels(),mobile=w<480,n=shapes.length;
+    // [form, visibility]: the outgoing form while it is still visible, then the active one.
+    const onStage=leaving>.004?[[outgoing,leaving],[active,arriving]]:[[active,arriving]];
+    for(const index of new Set(onStage.flatMap(([form])=>[form,...echoes.map(offset=>(form+offset)%n)]))){const update=updates.get(order[index]);if(update)update(shapes[index],clock);}
     for(let i=waves.length-1;i>=0;i--)if(clock-waves[i].born>3.6)waves.splice(i,1);
-    const mobile=w<480,sway=.015;
-    mainPose={x:w*((mobile?.50:.55)+Math.sin(clock*.12)*sway),y:h*(.46+Math.cos(clock*.14)*.015),scale:baseScale*style.size*(1+.065*Math.sin(clock*.23)),rx:style.tilt+Math.sin(clock*.23)*.17*style.turn+pointer.y*.26,ry:style.yaw+Math.sin(clock*.17)*.31*style.turn+pointer.x*.36,rz:lerp(style.roll,-.06,style.flow)+Math.sin(clock*.13)*lerp(.15,.07,style.flow)*style.turn,opacity:1-.58*Math.sin(Math.PI*t)**2};
     // Large, quiet fragments make the canvas feel continuous beyond its edges.
-    const echo=echoes[0];
-    renderShape(echo.current,{x:w*(.015+Math.sin(clock*.08)*.015),y:h*.68,scale:baseScale*.5,rx:echo.style.tilt+.4,ry:.2+clock*.018,rz:.4+Math.sin(clock*.1)*.13,opacity:.085*echo.fade},echo.style,8);
-    if(!mobile){const echo2=echoes[1];renderShape(echo2.current,{x:w*.98,y:h*.16,scale:baseScale*.38,rx:echo2.style.tilt,ry:-.6+Math.sin(clock*.1)*.2,rz:-.8,opacity:.065*echo2.fade},echo2.style,8);}
-    const targetSurface=surfaces.get(order[active]),sourceSurface=surfaces.get(order[previousActive]);
-    const surfaceWeight=targetSurface?smooth(Math.max(0,(transition-.55)/.45)):sourceSurface?1-smooth(Math.min(1,transition/.45)):0;
-    if(surfaceWeight<.995)renderShape(current,mainPose,{...style,lineAlpha:style.lineAlpha*(1-surfaceWeight)},mobile?2:1,true);
-    if(surfaceWeight>.005)renderSurface(targetSurface||sourceSurface,mainPose,surfaceWeight);
+    for(const [form,level] of onStage){
+      if(level<.004)continue;
+      const a=(form+echoes[0])%n,b=(form+echoes[1])%n;
+      renderShape(shapes[a],{x:w*(.015+Math.sin(clock*.08)*.015),y:h*.68,scale:baseScale*.5,rx:styles[a].tilt+.4,ry:.2+clock*.018,rz:.4+Math.sin(clock*.1)*.13,opacity:.085*level},styles[a],8);
+      if(!mobile)renderShape(shapes[b],{x:w*.98,y:h*.16,scale:baseScale*.38,rx:styles[b].tilt,ry:-.6+Math.sin(clock*.1)*.2,rz:-.8,opacity:.065*level},styles[b],8);
+    }
+    for(const [form,level] of onStage){
+      const s=styles[form],surface=surfaces.get(order[form]);
+      const pose={x:w*((mobile?.50:.55)+Math.sin(clock*.12)*.015),y:h*(.46+Math.cos(clock*.14)*.015),scale:baseScale*s.size*(.96+.04*level)*(1+.065*Math.sin(clock*.23)),rx:s.tilt+Math.sin(clock*.23)*.17*s.turn+pointer.y*.26,ry:s.yaw+Math.sin(clock*.17)*.31*s.turn+pointer.x*.36,rz:lerp(s.roll,-.06,s.flow)+Math.sin(clock*.13)*lerp(.15,.07,s.flow)*s.turn,opacity:level};
+      if(form===active)mainPose=pose;
+      if(level<.004)continue;
+      if(surface)renderSurface(surface,pose,1);else renderShape(shapes[form],pose,s,mobile?2:1,true);
+    }
+    const shown=arriving>=leaving?active:outgoing;
+    if(shown!==captioned)writeCaption(shown);
     for(const wave of waves){
       const age=clock-wave.born,fade=Math.max(0,1-age/3.6);
       if(wave.form===active&&order[active]===0){const head=Math.min(points-1,Math.floor(age/2.5*points)),tail=Math.max(0,head-17);ctx.beginPath();ctx.lineWidth=1.3;ctx.strokeStyle=`rgba(${accent},${fade})`;for(let j=tail;j<=head;j++){const k=(wave.path*points+j)*2;if(j===tail)ctx.moveTo(screen[k],screen[k+1]);else ctx.lineTo(screen[k],screen[k+1]);}ctx.stroke();}
@@ -188,7 +206,7 @@
     raf=0;if(!visible||paused){last=0;return;}
     if(last&&ts-last<1000/30){raf=requestAnimationFrame(frame);return;}
     const dt=last?Math.min((ts-last)/1000,.06):0;last=ts;clock+=dt;cycleAge+=dt;
-    transition=Math.min(1,transition+dt/morphDuration);pointer.x+=(pointer.tx-pointer.x)*.07;pointer.y+=(pointer.ty-pointer.y)*.07;
+    transition=Math.min(1,transition+dt/fadeDuration);pointer.x+=(pointer.tx-pointer.x)*.07;pointer.y+=(pointer.ty-pointer.y)*.07;
     if(cycleAge>=cycleDuration)choose(active+1);else draw();
     if(!raf)raf=requestAnimationFrame(frame);
   }

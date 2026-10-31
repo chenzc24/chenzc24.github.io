@@ -1,5 +1,7 @@
-.home-hero { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1.1fr); gap: 32px; align-items: center; padding-block: 40px 32px; }
-.home-introduction { display: grid; grid-template-columns: 184px minmax(0,1fr); gap: 36px; align-items: center; }
+/* The caption under the drawing takes a second row (subgrid), so the introduction centres on the drawing;
+   its 40px bottom margin matches the toolbar under the drawing. */
+.home-hero { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1.1fr); grid-template-rows: auto auto; gap: 0 32px; align-items: center; padding-block: 16px 32px; }
+.home-introduction { grid-area: 1 / 1; margin-bottom: 40px; display: grid; grid-template-columns: 184px minmax(0,1fr); gap: 36px; align-items: center; }
 .home-photograph { margin: 0; width: 100%; aspect-ratio: 4/5; overflow: hidden; }
 .home-portrait { width: 100%; height: 100%; object-fit: cover; object-position: 50% 68%; transform: scale(1.12); transform-origin: 50% 65%; }
 .home-copy { min-width: 0; }
@@ -14,7 +16,7 @@ html[lang="zh-CN"] .latest-label { font-size: 13px; }
 .latest .arrow { color: var(--muted); }
 .home-copy .text-links { margin-top: 24px; }
 html[lang="en"] .home-copy h1 { font-family: var(--sans); font-size: 42px; letter-spacing: -.03em; line-height: 1.15; }
-.observatory { position: relative; min-width: 0; }
+.observatory { position: relative; min-width: 0; grid-area: 1 / 2 / 3; display: grid; grid-template-rows: subgrid; }
 .observatory-stage { position: relative; height: 420px; overflow: hidden; }
 #field { display: block; width: 100%; height: 100%; touch-action: pan-y; cursor: crosshair; outline-offset: -6px; opacity: .8; }
 .art-toolbar { position: absolute; inset: auto 10px 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -47,7 +49,7 @@ html[lang="en"] .home-copy h1 { font-family: var(--sans); font-size: 42px; lette
 .home-index .index-link { font-size: 13px; margin-top: auto; padding-top: 24px; display: flex; align-items: baseline; gap: 10px; }
 .home-index .index-link .arrow { color: var(--muted); }
 @media (max-width:1000px) {
-  .home-hero { grid-template-columns: minmax(0,1.7fr) minmax(0,1fr); gap: 24px; padding-block: 32px 24px; }
+  .home-hero { grid-template-columns: minmax(0,1.7fr) minmax(0,1fr); gap: 0 24px; padding-block: 16px 24px; }
   .home-introduction { grid-template-columns: 144px minmax(0,1fr); gap: 24px; }
   .home-copy h1 { font-size: 40px; }
   html[lang="en"] .home-copy h1 { font-size: 36px; }
@@ -63,7 +65,7 @@ html[lang="en"] .home-copy h1 { font-family: var(--sans); font-size: 42px; lette
 }
 @media (max-width:700px) {
   .home-hero { display: block; padding-block: 32px 20px; }
-  .home-introduction { grid-template-columns: 128px minmax(0,1fr); grid-template-areas: "photo greeting" "copy copy" "links links"; gap: 24px; align-items: center; }
+  .home-introduction { grid-template-columns: 128px minmax(0,1fr); grid-template-areas: "photo greeting" "copy copy" "links links"; gap: 24px; align-items: center; margin-bottom: 0; }
   .home-photograph { grid-area: photo; }
   .home-copy { display: contents; }
   .home-copy h1 { grid-area: greeting; font-size: 34px; }
