@@ -15,6 +15,8 @@ window.PortfolioProfile = {
   curiosity: ['天文、物理，以及它们背后的数学。', 'Astronomy, physics, and the mathematics behind them.'],
   email: 'chen-zc24@mails.tsinghua.edu.cn',
   github: 'https://github.com/chenzc24',
+  // Footer clock. offset is the label shown next to the city.
+  place: {city: ['北京', 'Beijing'], timeZone: 'Asia/Shanghai', offset: 'UTC+8'},
   photographs: {
     home: {file:'zengchun-home.jpg', width:1279, height:1706},
     profile: {file:'zengchun-profile.jpg', width:544, height:772}

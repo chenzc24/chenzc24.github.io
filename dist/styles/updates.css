@@ -1,11 +1,11 @@
 #updates-content { max-width: 880px; margin-inline: auto; padding-block: 48px 56px; }
 .updates-heading { padding-bottom: 32px; border-bottom: 1px solid var(--ink); }
-.updates-heading h1 { font: 400 46px/1.25 var(--sans); letter-spacing: -.035em; }
+.updates-heading h1 { font: 400 46px/1.25 var(--sans); letter-spacing: -.025em; }
 .updates-heading p { margin-top: 16px; color: var(--muted); font-size: 15px; }
 .update { display: grid; grid-template-columns: 136px minmax(0,1fr); gap: 40px; padding-block: 36px 40px; border-bottom: 1px solid var(--line); scroll-margin-top: 32px; }
 .update:last-child { border-bottom: 0; padding-bottom: 0; }
-.update time { padding-top: 7px; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
-.update h2 { font-size: 27px; line-height: 1.5; letter-spacing: -.025em; margin-bottom: 18px; overflow-wrap: anywhere; }
+.update time { padding-top: 9px; color: var(--muted); font: 13px/1.8 var(--mono); }
+.update h2 { font-size: 27px; line-height: 1.5; letter-spacing: -.015em; margin-bottom: 18px; overflow-wrap: anywhere; }
 .update-body>p { font-size: 16px; line-height: 1.95; text-wrap: pretty; }
 .update-body>p+p { margin-top: 16px; }
 .update-links { margin-top: 20px; }

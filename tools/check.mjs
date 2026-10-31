@@ -20,7 +20,7 @@ for (const file of scripts) {
   catch (error) { errors.push(error.message); }
 }
 function checkReference(reference, from) {
-  if (!reference.startsWith('./')) return;
+  if (!/^\.\.?\//.test(reference)) return;
   const file = resolve(dirname(from), reference.split(/[?#]/)[0]);
   if (!existsSync(file)) errors.push(`Missing reference: ${from} → ${reference}`);
 }
@@ -28,6 +28,11 @@ const pages = readdirSync(root).filter(file=>file.endsWith('.html'));
 for (const page of pages) {
   const path = join(root,page), html = readFileSync(path,'utf8');
   for (const [,reference] of html.matchAll(/(?:src|href)="([^"]+)"/g)) checkReference(reference,path);
+}
+const styles = readdirSync(join(root,'styles')).filter(file=>file.endsWith('.css'));
+for (const sheet of styles) {
+  const path = join(root,'styles',sheet), css = readFileSync(path,'utf8');
+  for (const [,reference] of css.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/g)) checkReference(reference,path);
 }
 const context = {window:{}};
 runInNewContext(readFileSync(join(root,'data/profile.js'),'utf8'), context);
@@ -38,6 +43,7 @@ const ids = new Set();
 for (const project of context.window.PortfolioProjects) {
   if (ids.has(project.id)) errors.push(`Duplicate project id: ${project.id}`);
   ids.add(project.id);
+  if (!Array.isArray(project.caption) || project.caption.length !== 2 || project.caption.some(text => typeof text !== 'string' || !text.trim())) errors.push(`Missing caption: ${project.id}`);
   const page = join(root,`${project.id}.html`);
   if (!existsSync(page)) errors.push(`Missing project page: ${page}`);
   for (const asset of [project.image,project.license].filter(Boolean)) checkReference(`./assets/${asset}`,page);
@@ -46,6 +52,10 @@ for (const project of context.window.PortfolioProjects) {
 }
 for (const photo of Object.values(context.window.PortfolioProfile.photographs)) checkReference(`./assets/${photo.file}`,join(root,'index.html'));
 checkReference(context.window.PortfolioProfile.recent.href,join(root,'index.html'));
+const place = context.window.PortfolioProfile.place || {};
+let validZone = Boolean(place.timeZone);
+try { new Intl.DateTimeFormat('en', {timeZone: place.timeZone}); } catch { validZone = false; }
+if (!validZone || place.city?.length !== 2 || !place.offset) errors.push('Incomplete footer place: profile.js place needs city [zh, en], a valid timeZone and offset');
 for (const note of context.window.PortfolioNotes) checkReference(note.reference.url,join(root,'notes.html'));
 const updateIds = new Set();
 for (const entry of context.window.PortfolioUpdates) {
@@ -59,4 +69,4 @@ for (const entry of context.window.PortfolioUpdates) {
   if (entry.image) checkReference(entry.image.src,join(root,'updates.html'));
 }
 if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1; }
-else console.log(`OK: ${pages.length} pages, ${scripts.length} scripts, ${ids.size} projects, ${updateIds.size} updates and their local assets.`);
+else console.log(`OK: ${pages.length} pages, ${styles.length} stylesheets, ${scripts.length} scripts, ${ids.size} projects, ${updateIds.size} updates and their local assets.`);

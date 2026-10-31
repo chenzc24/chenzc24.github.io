@@ -1,4 +1,4 @@
-Original project images used by the résumé and project pages
+Original project images used by the home, résumé and project pages
 
 All images below are distributed unchanged. They are displayed with contain sizing;
 no circuit, data, label, or diagram has been redrawn for this site.
@@ -38,3 +38,13 @@ Personal photographs
 zengchun-home.jpg and zengchun-profile.jpg were supplied by the site owner on
 2026-10-29 for the homepage and résumé respectively. Both files are copied
 byte-for-byte; the homepage uses CSS framing without altering the original file.
+
+Fonts (fonts/)
+ibm-plex-sans-latin-400-normal.woff2, ibm-plex-sans-latin-500-normal.woff2 and
+ibm-plex-mono-latin-400-normal.woff2 are the Latin subsets of IBM Plex Sans and
+IBM Plex Mono from the Fontsource packages, copied unchanged on 2026-10-30.
+Source: https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans@5.3.0/files/
+Source: https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@5.3.0/files/
+License: SIL Open Font License 1.1. Copyright IBM Corp.
+Full text: fonts/ibm-plex-sans-LICENSE.txt and fonts/ibm-plex-mono-LICENSE.txt.
+Chinese text keeps the visitor's system fonts.

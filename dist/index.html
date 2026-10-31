@@ -7,17 +7,20 @@
   <meta name="description" content="陈增春，清华大学集成电路本科生。AI4IC 研究与模拟电路开源工具。">
   <title>陈增春 · Zengchun Chen</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles/base.css?v=20261029-10">
-  <link rel="stylesheet" href="./styles/home.css?v=20261029-10">
-  <script defer src="./data/profile.js?v=20261029-10"></script>
-  <script defer src="./data/projects.js?v=20261029-10"></script>
-  <script defer src="./scripts/site.js?v=20261029-10"></script>
-  <script defer src="./scripts/home.js?v=20261029-10"></script>
-  <script defer src="./scripts/art/field-shapes.js?v=20261029-10"></script>
-  <script defer src="./scripts/art/science-calabi-fractal.js?v=20261029-10"></script>
-  <script defer src="./scripts/art/science-fluid.js?v=20261029-10"></script>
-  <script defer src="./scripts/art/science-lorenz.js?v=20261029-10"></script>
-  <script defer src="./scripts/art/observatory.js?v=20261029-10"></script>
+  <link rel="preload" href="./assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./styles/base.css?v=20261030-1">
+  <link rel="stylesheet" href="./styles/home.css?v=20261030-1">
+  <script defer src="./data/profile.js?v=20261030-1"></script>
+  <script defer src="./data/projects.js?v=20261030-1"></script>
+  <script defer src="./data/updates.js?v=20261030-1"></script>
+  <script defer src="./scripts/site.js?v=20261030-1"></script>
+  <script defer src="./scripts/home.js?v=20261030-1"></script>
+  <script defer src="./scripts/art/field-shapes.js?v=20261030-1"></script>
+  <script defer src="./scripts/art/science-calabi-fractal.js?v=20261030-1"></script>
+  <script defer src="./scripts/art/science-fluid.js?v=20261030-1"></script>
+  <script defer src="./scripts/art/science-lorenz.js?v=20261030-1"></script>
+  <script defer src="./scripts/art/observatory.js?v=20261030-1"></script>
 </head>
 <body>
   <a class="skip" href="#main">跳到正文</a>
@@ -25,16 +28,19 @@
   <main id="main" class="frame">
     <section class="home-hero" aria-labelledby="greeting">
       <div id="home-introduction" class="home-introduction"></div>
-      <div class="observatory">
-        <canvas id="field" role="button" tabindex="0" aria-label="互动图形"></canvas>
-        <div class="art-toolbar">
-          <nav class="sequence" aria-label="形态"></nav>
-          <div class="field-controls">
-            <button id="next-form" type="button" aria-label="下一形态"><svg viewBox="0 0 20 16" aria-hidden="true"><path d="M2 8h14m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1"/></svg></button>
-            <button class="motion" id="motion" type="button" aria-label="暂停动画"></button>
+      <figure class="observatory">
+        <div class="observatory-stage">
+          <canvas id="field" role="button" tabindex="0" aria-label="互动图形"></canvas>
+          <div class="art-toolbar">
+            <nav class="sequence" aria-label="形态"></nav>
+            <div class="field-controls">
+              <button id="next-form" type="button" aria-label="下一形态"><svg viewBox="0 0 20 16" aria-hidden="true"><path d="M2 8h14m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1"/></svg></button>
+              <button class="motion" id="motion" type="button" aria-label="暂停动画"></button>
+            </div>
           </div>
         </div>
-      </div>
+        <figcaption class="art-caption"></figcaption>
+      </figure>
     </section>
     <section id="home-index" class="home-index" aria-label="精选工作与兴趣"></section>
   </main>

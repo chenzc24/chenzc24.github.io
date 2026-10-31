@@ -7,6 +7,23 @@
   let paused=userPaused||reduced.matches,visible=!document.hidden,inView=true;
   const lines=84,points=169,total=lines*points*3;
   const built=window.FieldShapes.build(lines,points),order=[4,1,3,6,2,9,0,7,5,8];
+  // Caption per form, keyed like order: a name, and the relation or construction the module draws.
+  const forms={
+    4:{name:['莫比乌斯带','Möbius strip'],note:'r(0, v) = r(2π, −v)'},
+    1:{name:['谢尔宾斯基四面体','Sierpiński tetrahedron'],note:'D = log 4 / log 2 = 2'},
+    3:{name:['双源干涉','Two-source interference'],note:'z = 0.12(cos 13d<sub>1</sub> + cos 13d<sub>2</sub>)'},
+    6:{name:['Calabi–Yau 截面','Calabi–Yau slice'],note:'z<sub>1</sub><sup>5</sup> + z<sub>2</sub><sup>5</sup> = 1'},
+    2:{name:['Burgers 涡','Burgers vortex'],note:'u<sub>θ</sub> = Γ(1 − e<sup>−γr²/2ν</sup>) / 2πr'},
+    9:{name:['洛伦兹吸引子','Lorenz attractor'],note:'σ = 10, ρ = 28, β = 8/3'},
+    0:{name:['环形走线','Ring traces'],note:['4 × 21 条 45° 折角走线','4 × 21 traces with 45° jogs']},
+    7:{name:['扭转经线','Twisted meridians'],note:'λ = v + 0.22 sin 3φ'},
+    5:{name:['双螺旋','Double helix'],note:['两条带相差半圈','two ribbons, half a turn apart']},
+    8:{name:['三叶结','Trefoil knot'],note:['(2, 3) 环面纽结','(2, 3) torus knot']}
+  };
+  const caption=document.querySelector('.art-caption');
+  // Highlights use the site accent; the canvas resolves any CSS colour to #rrggbb.
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#2f6b60';
+  const accent=[1,3,5].map(i=>parseInt(ctx.fillStyle.slice(i,i+2),16)).join(',');
   const scientific=[...window.CalabiFractalForms.create(lines,points),window.FluidForm.create(lines,points),window.LorenzForm.create(lines,points)];
   const segmentBreaks=scientific.find(form=>form.index===6).breaks;
   const surfaces=new Map(scientific.filter(form=>form.surface).map(form=>[form.index,form.surface]));
@@ -24,7 +41,7 @@
   const echoes=[3,6].map(offset=>({offset,current:new Float32Array(shapes[offset]),origin:new Float32Array(shapes[offset]),style:{...styles[offset]},originStyle:{...styles[offset]}}));
   const pointer={x:0,y:0,tx:0,ty:0},waves=[];
   const TAU=Math.PI*2,cycleDuration=10.8,morphDuration=3.2;
-  let active=0,previousActive=0,transition=1,cycleAge=0,clock=0,last=0,raf=0,w=0,h=0,baseScale=0;
+  let active=0,previousActive=0,transition=1,cycleAge=0,clock=0,last=0,raf=0,w=0,h=0,baseScale=0,captioned=0;
   let style={...styles[0]},originStyle={...style},mainPose=null;
   const lerp=(a,b,t)=>a+(b-a)*t;
   const smooth=t=>t*t*(3-2*t);
@@ -32,7 +49,12 @@
   function labels(){
     lang=Site.language;
     sequence.setAttribute('aria-label',lang==='zh'?'形态':'Forms');
-    buttons.forEach((button,i)=>{const name=order[i]===6?'Calabi–Yau':order[i]===9?(lang==='zh'?'洛伦兹吸引子':'Lorenz attractor'):'';button.setAttribute('aria-label',(lang==='zh'?`形态 ${i+1}`:`Form ${i+1}`)+(name?`：${name}`:''));button.setAttribute('aria-pressed',String(i===active));});
+    buttons.forEach((button,i)=>{button.setAttribute('aria-label',(lang==='zh'?`形态 ${i+1}：`:`Form ${i+1}: `)+Site.t(...forms[order[i]].name));button.setAttribute('aria-pressed',String(i===active));});
+    const form=forms[order[active]],note=Array.isArray(form.note)?Site.escape(Site.t(...form.note)):form.note,changed=captioned!==active;
+    // The caption fades in only when the form changes, not on a language switch or pause.
+    captioned=active;caption.classList.remove('is-changing');
+    caption.innerHTML=`<span class="art-count"><b>${String(active+1).padStart(2,'0')}</b> / ${shapes.length}</span> <span class="art-name">${Site.t(...form.name)}</span> <span class="art-note">${note}</span>`;
+    if(changed){void caption.offsetWidth;caption.classList.add('is-changing');}
     document.querySelector('#next-form').setAttribute('aria-label',lang==='zh'?'下一形态':'Next form');
     canvas.setAttribute('aria-label',lang==='zh'?'互动图形':'Interactive form');
     const motion=document.querySelector('#motion');
@@ -97,7 +119,7 @@
       if(dots<.999)ctx.stroke();
       if(interactive&&(paint.flow>.01||(paint.trace>.01&&i%12===0))){
         const head=Math.floor(((clock*.085+i*.61803398875)%1)*(points-1)),tail=Math.max(0,head-12);
-        ctx.beginPath();ctx.strokeStyle=`rgba(38,55,70,${(paint.flow*.32+paint.trace*.65)*depthAlpha*pose.opacity})`;ctx.lineWidth=.85;
+        ctx.beginPath();ctx.strokeStyle=`rgba(${accent},${(paint.flow*.32+paint.trace*.65)*depthAlpha*pose.opacity})`;ctx.lineWidth=.85;
         for(let j=tail;j<=head;j++){const k=(i*points+j)*2;if(j===tail)ctx.moveTo(screen[k],screen[k+1]);else ctx.lineTo(screen[k],screen[k+1]);}ctx.stroke();ctx.lineWidth=.62;
       }
     }
@@ -148,8 +170,8 @@
     if(surfaceWeight>.005)renderSurface(targetSurface||sourceSurface,mainPose,surfaceWeight);
     for(const wave of waves){
       const age=clock-wave.born,fade=Math.max(0,1-age/3.6);
-      if(wave.form===active&&order[active]===0){const head=Math.min(points-1,Math.floor(age/2.5*points)),tail=Math.max(0,head-17);ctx.beginPath();ctx.lineWidth=1.3;ctx.strokeStyle=`rgba(52,71,92,${fade})`;for(let j=tail;j<=head;j++){const k=(wave.path*points+j)*2;if(j===tail)ctx.moveTo(screen[k],screen[k+1]);else ctx.lineTo(screen[k],screen[k+1]);}ctx.stroke();}
-      ctx.strokeStyle=`rgba(69,90,113,${fade*.11})`;ctx.lineWidth=.6;ctx.beginPath();ctx.arc(wave.x,wave.y,8+age*180,0,TAU);ctx.stroke();
+      if(wave.form===active&&order[active]===0){const head=Math.min(points-1,Math.floor(age/2.5*points)),tail=Math.max(0,head-17);ctx.beginPath();ctx.lineWidth=1.3;ctx.strokeStyle=`rgba(${accent},${fade})`;for(let j=tail;j<=head;j++){const k=(wave.path*points+j)*2;if(j===tail)ctx.moveTo(screen[k],screen[k+1]);else ctx.lineTo(screen[k],screen[k+1]);}ctx.stroke();}
+      ctx.strokeStyle=`rgba(${accent},${fade*.14})`;ctx.lineWidth=.6;ctx.beginPath();ctx.arc(wave.x,wave.y,8+age*180,0,TAU);ctx.stroke();
       if(age<.7){ctx.fillStyle=`rgba(32,38,44,${(.7-age)*.6})`;ctx.beginPath();ctx.arc(wave.x,wave.y,2,0,TAU);ctx.fill();}
     }
     buttons[active].style.setProperty('--progress',Math.max(.08,cycleAge/cycleDuration));
