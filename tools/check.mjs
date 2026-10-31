@@ -39,6 +39,7 @@ runInNewContext(readFileSync(join(root,'data/profile.js'),'utf8'), context);
 runInNewContext(readFileSync(join(root,'data/projects.js'),'utf8'), context);
 runInNewContext(readFileSync(join(root,'data/notes.js'),'utf8'), context);
 runInNewContext(readFileSync(join(root,'data/updates.js'),'utf8'), context);
+runInNewContext(readFileSync(join(root,'scripts/sky.js'),'utf8'), context);
 const ids = new Set();
 for (const project of context.window.PortfolioProjects) {
   if (ids.has(project.id)) errors.push(`Duplicate project id: ${project.id}`);
@@ -56,6 +57,16 @@ const place = context.window.PortfolioProfile.place || {};
 let validZone = Boolean(place.timeZone);
 try { new Intl.DateTimeFormat('en', {timeZone: place.timeZone}); } catch { validZone = false; }
 if (!validZone || place.city?.length !== 2 || !place.offset) errors.push('Incomplete footer place: profile.js place needs city [zh, en], a valid timeZone and offset');
+const {nameCard, springGreeting} = context.window.PortfolioProfile;
+if (!nameCard?.pinyin || !nameCard.characters?.length || nameCard.characters.some(([character, meaning]) => !character || meaning?.length !== 2)) errors.push('Incomplete name card: profile.js nameCard needs pinyin and [character, [zh, en]] entries');
+if (springGreeting?.length !== 2) errors.push('Missing springGreeting [zh, en] in profile.js');
+// Sky: solar terms are dated in China Standard Time; the Moon is new or full at the 2026 eclipses.
+for (const [iso, expected, read] of [
+  ['2026-02-04T12:00:00+08:00', '立春', result => result.starting?.[0]],
+  ['2026-12-22T12:00:00+08:00', '冬至', result => result.starting?.[0]],
+  ['2026-03-03T11:33:00Z', '满月', result => result.moon.phase[0]],
+  ['2026-08-12T17:46:00Z', '新月', result => result.moon.phase[0]]
+]) if (read(context.window.Sky.today(new Date(iso))) !== expected) errors.push(`Sky: expected ${expected} at ${iso}`);
 for (const note of context.window.PortfolioNotes) checkReference(note.reference.url,join(root,'notes.html'));
 const updateIds = new Set();
 for (const entry of context.window.PortfolioUpdates) {

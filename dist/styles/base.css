@@ -35,16 +35,36 @@ a:focus-visible, button:focus-visible, summary:focus-visible, canvas:focus-visib
 .site-header { min-height: 96px; display: flex; align-items: center; justify-content: space-between; gap: 32px; border-bottom: 1px solid var(--line); }
 .brand { font: 24px/1.3 var(--serif); letter-spacing: .04em; white-space: nowrap; }
 html[lang="en"] .brand { font: 500 18px/1.3 var(--sans); letter-spacing: -.01em; }
+.brand-wrap { position: relative; }
+/* Name card: pronunciation and meaning, on hover or keyboard focus of the name. */
+.name-card { position: absolute; z-index: 10; top: calc(100% + 10px); left: -15px; display: grid; gap: 2px; padding: 10px 15px 11px; white-space: nowrap; background: var(--paper); border: 1px solid var(--line); box-shadow: 0 18px 30px -24px rgba(32,38,44,.55); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity .3s var(--ease), transform .3s var(--ease), visibility 0s .3s; }
+.brand-wrap:hover .name-card, .brand-wrap:focus-within .name-card { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.name-card-pinyin { font: italic 18px/1.45 Georgia, "Times New Roman", serif; }
+.name-card-han { margin-right: 10px; font: normal 18px/1.45 var(--serif); letter-spacing: .04em; }
+.name-card-meaning { font: 12px/1.8 var(--mono); color: var(--muted); }
+.name-card-meaning b { font: 400 14px/1 var(--serif); color: var(--ink); }
 .site-nav { display: flex; align-items: center; gap: 32px; font-size: 14px; }
 .site-nav a, .site-nav button { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
 .site-nav button { justify-content: center; min-width: 28px; font-size: 13px; }
 .site-nav a::after { content: ""; position: absolute; inset: auto 0 8px; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .45s var(--ease); }
 .site-nav a:hover::after, .site-nav [aria-current="page"]::after { transform: scaleX(1); }
-.site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 10px 32px; padding-block: 26px 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 32px; padding-block: 26px 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
 .site-footer a { overflow-wrap: anywhere; }
 .site-footer a:hover { color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
 .footer-contact, .colophon { display: flex; flex-wrap: wrap; gap: 4px 28px; }
 .colophon { font: 12px/1.8 var(--mono); }
+.footer-contact { align-items: center; }
+.chip-mark { width: 44px; height: 22px; flex: none; margin-right: -10px; }
+.chip-body { fill: var(--ink); }
+.chip-pins { fill: #9aa3a0; }
+.chip-dot { fill: var(--line); }
+.chip-mark text { font: 7px var(--mono); letter-spacing: .08em; fill: var(--paper); }
+.sky { white-space: nowrap; }
+/* Moon phase: the unlit part shaded, as in an almanac. */
+.moon { width: 11px; height: 11px; margin-right: 6px; vertical-align: -1px; }
+.moon-dark { fill: currentColor; opacity: .45; }
+.moon-lit { fill: var(--paper); }
+.moon-rim { fill: none; stroke: currentColor; stroke-width: .9; }
 .text-links { display: flex; flex-wrap: wrap; gap: 18px 28px; font-size: 14px; }
 .text-links a { display: inline-block; padding-bottom: 5px; background: linear-gradient(var(--accent), var(--accent)) 0 100% / 0 1px no-repeat, linear-gradient(var(--rule), var(--rule)) 0 100% / 100% 1px no-repeat; transition: background-size .45s var(--ease); }
 .text-links a:hover { background-size: 100% 1px, 100% 1px; }
@@ -85,7 +105,7 @@ html[lang="zh-CN"] .plate-caption { font-size: 12.5px; }
 @media (max-width: 360px) { :root { --gutter: 20px; } .site-nav { gap: 12px; } }
 @media (max-width: 480px) {
   .site-header { flex-wrap: wrap; gap: 8px; padding-block: 20px 8px; }
-  .site-header .brand { flex-basis: 100%; }
+  .site-header .brand-wrap { flex-basis: 100%; }
   .site-nav { width: 100%; justify-content: space-between; gap: 16px; font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } a.plate:hover, a:hover .arrow, a:hover .arrow-back { transform: none; } }

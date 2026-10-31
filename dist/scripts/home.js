@@ -1,6 +1,8 @@
 'use strict';
 (() => {
   const {t, escape, profile, portrait, projectImage} = Site;
+  // On the day of 立春 the greeting welcomes spring, the 春 in 增春 (scripts/sky.js).
+  const greeting = () => window.Sky?.today().starting?.[0] === '立春' ? profile.springGreeting : profile.greeting;
   const research = PortfolioProjects.find(project => project.id === 'io-ring');
   const tool = PortfolioProjects.find(project => project.id === 'analog-canvas');
   const arrow = '<span class="arrow" aria-hidden="true">→</span>';
@@ -17,7 +19,7 @@
     document.querySelector('#home-introduction').innerHTML = `
       <figure class="home-photograph">${portrait('home','home-portrait')}</figure>
       <div class="home-copy">
-        <h1 id="greeting"><span class="greeting">${t(...profile.greeting)}</span><span>${t(...profile.introduction)}</span></h1>
+        <h1 id="greeting"><span class="greeting">${t(...greeting())}</span><span>${t(...profile.introduction)}</span></h1>
         <div class="intro-copy"><p>${t(...profile.homeIntroduction)}</p><p class="recent-work">${latest()}</p></div>
         <div class="text-links"><a href="./resume.html">${t('履历与成果','Profile & work')}</a><a href="mailto:${profile.email}">${t('联系我','Say hello')}</a></div>
       </div>`;

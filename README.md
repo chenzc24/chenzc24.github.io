@@ -11,6 +11,7 @@ GitHub Pages 通过 `.github/workflows/pages.yml` 部署，先运行静态检查
 - `dist/io-ring.html` 等四个项目页：短介绍、带编号图注的项目原图、原始链接。
 - `dist/notes.html`：两则短札记，从首页“电路之外”进入。
 - `dist/updates.html`：独立的近况专栏，可从全站顶部导航或首页介绍下方进入，按时间记录学习、项目与生活。
+- `dist/404.html`：找不到页面时由 GitHub Pages 返回，莫比乌斯带缓慢转动。页面用 `<base href="/">`，在任意路径下都能正确加载样式与链接。
 
 保留原有 HTML 地址，页面之间使用普通链接。中文为默认语言，语言选择在本机保存。
 
@@ -19,8 +20,9 @@ GitHub Pages 通过 `.github/workflows/pages.yml` 部署，先运行静态检查
 ```text
 dist/
   *.html              页面入口、元信息、脚本加载顺序
+  favicon.svg         网站图标：印着 ZC24 的芯片
   data/
-    profile.js        个人信息、照片、经历、双语介绍、页脚城市与时区
+    profile.js        个人信息、照片、经历、双语介绍、页脚城市与时区、姓名卡、立春问候
     projects.js       项目内容、原图、图注、出处、许可与链接
     notes.js          双语札记、参考链接
     updates.js        近况条目，新的放在前面；首页显示第一条
@@ -31,14 +33,17 @@ dist/
     project.css       项目详情布局
     notes.css         札记阅读布局
     updates.css       近况时间列表
+    lost.css          404 页
   scripts/
-    site.js           统一导航与页脚、语言切换、图注、入场动效
+    sky.js            节气与月相计算（页脚、立春问候）
+    site.js           统一导航与页脚、姓名卡、语言切换、图注、入场动效、控制台问候
     home.js           首页内容
     profile.js        履历内容、章节导航、打印入口
     project.js        四个项目共用的详情模板
     notes.js          札记渲染
     updates.js        近况渲染，支持短文、图片与链接
-    art/              科学图形与动画引擎；observatory.js 内含各形态图注
+    lost.js           404 页
+    art/              科学图形与动画引擎；observatory.js 内含各形态图注；snow.js 照片落雪
   assets/             用户照片与项目原图，出处见 SOURCES.txt
     fonts/            IBM Plex 字体子集与许可（OFL-1.1）
 ```
@@ -54,6 +59,8 @@ dist/
 照片保留原始文件和自然比例；项目图使用 `object-fit: contain`，避免裁去电路、图表和架构内容。不要用生成图替代原图。项目图统一放在图框（`.plate`）中，图号按 `projects.js` 中的顺序，在履历页与项目页保持一致；图注文字填在各项目的 `caption`。
 
 页脚显示城市、时区与当地时间（`profile.js` 的 `place`），以及“更新于”日期。该日期取自页面的 Last-Modified，在 GitHub Pages 上即最近一次部署，无需手动维护。
+
+几处个人化细节：页脚显示当前节气与月相，由 `scripts/sky.js` 按 Meeus《Astronomical Algorithms》的低精度公式在浏览器中计算，节气日期按北京时间，节气当天显示“今日某某”；悬停或用键盘聚焦页眉的名字，会显示拼音与字义（`profile.js` 的 `nameCard`）；立春当天，首页问候换成 `springGreeting`；悬停或轻触首页照片，会落下几片雪；浏览器控制台里有一段问候；网站图标与页脚标记是一枚印着 ZC24 的芯片。动效在系统要求减少动态效果时关闭。
 
 ## 追加一条近况
 
@@ -89,6 +96,6 @@ python -m http.server 4173 --bind 127.0.0.1 --directory dist
 node tools/check.mjs
 ```
 
-该检查只读本地文件，检查脚本语法、页面与样式表中的资源引用（含字体）、项目原图与图注、页脚时区。布局调整后还需检查中英文及窄屏显示。样式链接带版本参数；浏览器持有旧样式时更新该参数。
+该检查只读本地文件，检查脚本语法、页面与样式表中的资源引用（含字体）、项目原图与图注、页脚时区、姓名卡，并用 2026 年的节气与日月食核对节气和月相计算。布局调整后还需检查中英文及窄屏显示。样式链接带版本参数；浏览器持有旧样式时更新该参数。
 
 本地开发目录中的旧版备份、检查截图位于 `qa/`，不包含在公开源码和网站中。GitHub 发布源只包含当前页面、必要素材、检查脚本与部署配置，不带旧站托管配置或历史草稿。

@@ -2,7 +2,11 @@
 window.PortfolioProfile = {
   name: ['陈增春', 'Zengchun Chen'],
   secondaryName: ['Zengchun Chen', '陈增春'],
+  // Header name card: pinyin, then each character with its meaning [Chinese, English].
+  nameCard: {pinyin: 'Chén Zēngchūn', characters: [['增', ['增添', 'add']], ['春', ['春天', 'spring']]]},
   greeting: ['你好，', 'Hello,'],
+  // Greeting on the day of 立春 (Start of Spring), computed in scripts/sky.js.
+  springGreeting: ['今天立春，', 'Spring begins today,'],
   introduction: ['我是增春。', 'I’m Zengchun.'],
   school: ['清华大学 · 为先书院', 'Tsinghua University · Weixian College'],
   degree: ['集成电路本科生 · 2024—2028（预计）', 'Integrated Circuits · B.Eng. candidate, 2024–2028 (expected)'],
