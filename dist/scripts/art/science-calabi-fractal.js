@@ -29,11 +29,11 @@
     // A strided renderer must inspect every mask entry skipped since its last
     // sampled point, not just the mask at the current endpoint.
     const breaks = new Uint8Array(lineCount * pointCount);
-    // The shaded model retains all 25 sheets. An even b subdivision includes
-    // b=0 exactly, where neighboring root branches meet; omitting it leaves holes.
-    const columns = 12, rows = 8;
+    // The surface model retains all 25 sheets; observatory.js draws it hidden-line and inks its rows.
+    // An even b subdivision includes b=0 exactly, where neighboring root branches meet; omitting it leaves holes.
+    const columns = 16, rows = 12;
     const surfaceFour = new Float32Array(25 * (columns + 1) * (rows + 1) * 4);
-    const surface = {vertices: new Float32Array(surfaceFour.length / 4 * 3), faces: []};
+    const surface = {vertices: new Float32Array(surfaceFour.length / 4 * 3), faces: [], inked: []};
     function coordinate(a, b, k1, k2, target, offset) {
       const cr = Math.cos(a) * Math.cosh(b), ci = -Math.sin(a) * Math.sinh(b);
       const sr = Math.sin(a) * Math.cosh(b), si = Math.cos(a) * Math.sinh(b);
@@ -46,11 +46,14 @@
       const first = patch * (columns + 1) * (rows + 1);
       for (let row = 0; row <= rows; row++) for (let column = 0; column <= columns; column++) {
         const a = (.5 - .5 * Math.cos(column / columns * Math.PI)) * Math.PI / 2;
-        const b = .64 * Math.sin((row / rows - .5) * Math.PI);
+        // Evenly spaced rows, so the inked scans are spaced like the contour lines.
+        const b = .64 * (2 * row / rows - 1);
         coordinate(a, b, patch % 5, Math.floor(patch / 5), surfaceFour, (first + row * (columns + 1) + column) * 4);
         if (row < rows && column < columns) {
           const k = first + row * (columns + 1) + column;
           surface.faces.push([k, k + 1, k + columns + 2, k + columns + 1]);
+          // Which row edges get ink (1: this row, 2: the next). Not b=0, where the branches meet in near-straight seams.
+          surface.inked.push((row * 2 === rows ? 0 : 1) | ((row + 1) * 2 === rows ? 0 : 2));
         }
       }
     }

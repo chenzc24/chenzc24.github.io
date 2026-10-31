@@ -7,6 +7,8 @@
   let paused=userPaused||reduced.matches,visible=!document.hidden,inView=true;
   const lines=84,points=169,total=lines*points*3;
   const built=window.FieldShapes.build(lines,points),order=[4,1,3,6,2,9,0,7,5,8];
+  // A fresh order on every visit (Fisher–Yates), so the page does not always open on the same form.
+  for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
   // Caption per form, keyed like order: a name, and the relation or construction the module draws.
   const forms={
     4:{name:['莫比乌斯带','Möbius strip'],note:'r(0, v) = r(2π, −v)'},
@@ -24,6 +26,8 @@
   // Highlights use the site accent; the canvas resolves any CSS colour to #rrggbb.
   ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#2f6b60';
   const accent=[1,3,5].map(i=>parseInt(ctx.fillStyle.slice(i,i+2),16)).join(',');
+  // The canvas ground, and the ink of the surface model by depth cue (index = cue × 20).
+  const paper='#f3f4f2',inks=Array.from({length:22},(_,i)=>`rgba(32,38,44,${(.34*i/20).toFixed(3)})`);
   const scientific=[...window.CalabiFractalForms.create(lines,points),window.FluidForm.create(lines,points),window.LorenzForm.create(lines,points)];
   const segmentBreaks=scientific.find(form=>form.index===6).breaks;
   const surfaces=new Map(scientific.filter(form=>form.surface).map(form=>[form.index,form.surface]));
@@ -138,20 +142,23 @@
     }
     surface.faces.forEach((face,i)=>{surface.depth[i]=(camera[face[0]*3+2]+camera[face[1]*3+2]+camera[face[2]*3+2]+camera[face[3]*3+2])*.25;});
     surface.sorted.sort((a,b)=>surface.depth[a]-surface.depth[b]);
-    ctx.globalAlpha=opacity*pose.opacity;ctx.lineWidth=.4;ctx.lineJoin='round';
+    // Hidden-line drawing in the ink of the line forms: faces are painted back to front in paper, so nearer
+    // sheets hide what lies behind them, and only the edges along the scans (constant b) are inked.
+    const at=(vertex,move)=>{const k=vertex*3;if(move)ctx.moveTo(projected[k],projected[k+1]);else ctx.lineTo(projected[k],projected[k+1]);};
+    ctx.globalAlpha=opacity*pose.opacity;ctx.lineWidth=.6;ctx.lineJoin=ctx.lineCap='round';ctx.fillStyle=paper;
     for(const index of surface.sorted){
-      const face=surface.faces[index],a=face[0]*3,b=face[1]*3,c=face[3]*3;
-      const ux=camera[b]-camera[a],uy=camera[b+1]-camera[a+1],uz=camera[b+2]-camera[a+2],vx=camera[c]-camera[a],vy=camera[c+1]-camera[a+1],vz=camera[c+2]-camera[a+2];
-      const nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,length=Math.hypot(nx,ny,nz)||1;
-      const light=Math.abs((nx*-.35+ny*-.45+nz*.82)/length),tone=Math.round(164+52*light);
-      ctx.fillStyle=`rgb(${tone},${tone+2},${tone+1})`;ctx.strokeStyle='rgba(49,61,64,.07)';
-      ctx.beginPath();face.forEach((vertex,i)=>{const k=vertex*3;if(i===0)ctx.moveTo(projected[k],projected[k+1]);else ctx.lineTo(projected[k],projected[k+1]);});ctx.closePath();ctx.fill();ctx.stroke();
+      const [a,b,c,d]=surface.faces[index],inked=surface.inked?.[index]??3;
+      ctx.beginPath();at(a,1);at(b);at(c);at(d);ctx.closePath();ctx.fill();
+      if(!inked)continue;
+      // Nearer faces are inked darker, with the depth cue of the line forms. Bit 1 inks edge a–b, bit 2 edge d–c.
+      ctx.strokeStyle=inks[Math.round(Math.max(.57,Math.min(1.05,.84+surface.depth[index]*.23))*20)];
+      ctx.beginPath();if(inked&1){at(a,1);at(b);}if(inked&2){at(d,1);at(c);}ctx.stroke();
     }
     ctx.globalAlpha=1;
   }
 
   function draw(){
-    if(!w)return;ctx.fillStyle='#f3f4f2';ctx.fillRect(0,0,w+1,h+1);
+    if(!w)return;ctx.fillStyle=paper;ctx.fillRect(0,0,w+1,h+1);
     for(const index of new Set([active,...echoes.map(e=>(active+e.offset)%shapes.length)])){const update=updates.get(order[index]);if(update)update(shapes[index],clock);}
     const t=smooth(transition);
     if(transition<1){for(let k=0;k<total;k++)current[k]=lerp(origin[k],shapes[active][k],t);}else current.set(shapes[active]);
